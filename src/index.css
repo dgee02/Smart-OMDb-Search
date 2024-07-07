@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	font-family: "Wix Madefor Text", sans-serif;
+	background-color: #212426;
+	color: white;
+}
+
+.movie:hover div:nth-of-type(3) {
+	background-color: transparent;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0, 1);
+}
+
+.no-scroll {
+	overflow: hidden;
+}
+
+.no-pointer-events {
+	pointer-events: none;
+}
+
+.no-pointer-events .modal {
+	pointer-events: auto;
+	overflow: auto;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.loading-icon {
+	animation: spin 2s linear infinite;
+}
