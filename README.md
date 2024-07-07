@@ -4,7 +4,7 @@
 
 A smart search engine for obtaining information from the OMDb service. Users can explore movies, series, episodes, etc. and view various details about them.
 
-![](https://raw.githubusercontent.com/dgee02/portfolio-content/main/projects/OMDb-Search-Engine.gif)
+![](https://raw.githubusercontent.com/dgee02/portfolio-content/main/projects/Smart-OMDb-Search.gif)
 
 ## Main Features
 
@@ -24,7 +24,7 @@ A smart search engine for obtaining information from the OMDb service. Users can
 
 ## Usage
 
-1. Open the web application in your browser through this [link](https://omdb-search-engine.netlify.app/).
+1. Open the web application in your browser through this [link](https://smart-omdb-search.netlify.app/).
 
 2. Enter any portion for the title of a movie, series, episode, etc. into the main search bar. Due to the limits of the OMDb API, at least 3 characters are required for any search to work. 
 

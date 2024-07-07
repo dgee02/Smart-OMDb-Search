@@ -37,7 +37,7 @@ const App = () => {
 					`/.netlify/functions/gemini?prompt=${aiFilters}`
 				);
 				if (!response.ok) {
-					throw new Error("Network response was not ok");
+					throw new Error("Network response was not ok for Gemini AI");
 				}
 				const aiData = await response.json();
 				clearAll();
@@ -65,7 +65,7 @@ const App = () => {
 		try {
 			for (let page = 1; page <= 3; page++) {
 				let response = await fetch(
-					`/.netlify/functions/fetchMovies?searchTerm=${searchTerm.trim()}&page=${page}`
+					`/.netlify/functions/fetchMovies?searchTerm=${encodeURIComponent(searchTerm.trim())}&page=${page}`
 				);
 				if (!response.ok) throw new Error(response.statusText);
 
