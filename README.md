@@ -2,25 +2,25 @@
 
 ## Description
 
-A smart search engine for obtaining information from the OMDb service. Users can explore movies, series, episodes, etc. and view various details about them.
+A smart search engine for obtaining information from the OMDb API. Users can explore movies, series, episodes, etc. and view various details about them.
 
 ![](https://raw.githubusercontent.com/dgee02/portfolio-content/main/projects/Smart-OMDb-Search.gif)
 
 ## Main Features
 
-- OMDb & YouTube API Integration: Access comprehensive movie data and trailers, with search results quickly retrieved and displayed.
+- AI Integration: Provide any description and Google Gemini will attempt to determine the title name.
 
-- AI Integration: Provide any description and Google Gemini will attempt to determine the movie title.
+- Advanced Filters: Refine searches by genre, year, type, director, and cast with support for multiple values.
 
-- Advanced Filters: Refine searches by genre, year, type, director, and cast with multiple values support.
+- Modals: Click on a search result for additional information without leaving the current page.
 
-- Search Term Highlighting: Highlight matching parts of the title in search results, aiding in quick identification of relevant content.
+- YouTube Integration: View relevant trailers for each search result.
 
-- Modals: Interact with search results through modals, allowing for detailed information viewing and trailer playback without leaving the current page.
+- Search Term Highlighting: Highlight matching parts of titles in search results for quick identification of relevant content.
 
-- Usage Guidelines: Clear instructions for maximizing search features.
+- Usage Guidelines: Instructions with examples are provided to enhance understanding of search features.
 
-- Additional Quality of Life Improvements: Easily reset search criteria with a single click, hassle-free searching with case-insensitive input recognition, and more.
+- Additional Quality of Life Features: Easily reset search criteria with a single click, hassle-free searching with case-insensitive input recognition, and more.
 
 ## Usage
 
@@ -29,7 +29,7 @@ A smart search engine for obtaining information from the OMDb service. Users can
 2. Enter any portion for the title of a movie, series, episode, etc. into the main search bar. Due to the limits of the OMDb API, at least 3 characters are required for any search to work. 
 
 3. Use additional filters to refine your search, if desired. There are separate 2 options: 
-    - Google Gemini will try to find the title based on any description provided and its result will automatically update the main search bar. No other fields (including the main search bar) need to be initially filled if using this option. Keep in mind that inappropriate descriptions may not be processed and that **Google may use your prompts to improve their products**.
+    - Google Gemini will try to find the title based on any description provided and its result will automatically update the main search bar. No other fields (including the main search bar) need to be initially filled if using this option. Keep in mind that inappropriate descriptions may not be processed. **Google may use your prompts to improve their products**.
     - Use any number of the additional filters at a time. Keep in mind when inputting more than 1 value into a filter, each value must be separated with a single comma and no spaces in between (e.g., value1,value2,value3). 
 
 4. Click the search button or press Enter on your keyboard to view search results. (If using the AI option, the search button must be clicked twice: 1st search will update main search bar, 2nd search will provide results.)
