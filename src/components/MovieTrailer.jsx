@@ -44,7 +44,7 @@ const MovieTrailer = ({ movieTitle, movieYear }) => {
         ></iframe>
       ) : (
         <p className="text-center">
-          <FontAwesomeIcon icon={faCircleExclamation} className="mr-2" />{" "}
+          <FontAwesomeIcon icon={faCircleExclamation} className="mr-2" style={{ color: "red" }}/>{" "}
           YouTube Player N/A
         </p>
       )}

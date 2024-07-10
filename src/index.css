@@ -8,6 +8,11 @@ body {
 	color: white;
 }
 
+.movie {
+	width: 288px;
+	height: 424px;
+}
+
 .movie:hover div:nth-of-type(3) {
 	background-color: transparent;
 	transition: all 0.4s cubic-bezier(0.175, 0.885, 0, 1);

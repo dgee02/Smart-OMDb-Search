@@ -19,16 +19,17 @@ const FAQ = (props) => {
                         <b>Main search bar (Title* field):</b>
                         <br />
                         Enter any portion for the title of a movie, series, episode, etc.{" "}
-                        <b>3+ characters</b> are required for any search to work.
+                        Due to the limits of the OMDb API, <b>at least 3 characters</b> are
+                        required for any search to work.
                     </p>
                     <p className="pb-3">
                         <b>Additional filters (Show Filters button):</b>
                         <br />
-                        Enter any description and <b>Google Gemini</b> will try to find the title.
-                        (Description field clears on successful call.) The Search button
-                        must be clicked twice: 1st search will update main search bar, 2nd
-                        search will provide results. Inappropriate descriptions may not be
-                        processed.
+                        Enter any description and <b>Google Gemini</b> will try to find the
+                        title. (Description field clears on successful call.) The Search
+                        button must be clicked twice: 1st search will update main search
+                        bar, 2nd search will provide results. Inappropriate descriptions may
+                        not be processed.
                         <br />
                         <b>OR</b>
                         <br />

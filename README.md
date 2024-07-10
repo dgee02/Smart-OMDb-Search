@@ -18,9 +18,9 @@ A smart search engine for obtaining information from the OMDb API. Users can exp
 
 - Search Term Highlighting: Highlight matching parts of titles in search results for quick identification of relevant content.
 
-- Usage Guidelines: Instructions with examples are provided to enhance understanding of search features.
+- Usage Guidelines: Instructions and examples are provided to enhance understanding of search features.
 
-- Additional Quality of Life Features: Easily reset search criteria with a single click, hassle-free searching with case-insensitive input recognition, and more.
+- Additional Quality of Life Features: Easily reset search criteria with a single click, hassle-free searching with case-insensitive input recognition, helpful error messages, and more.
 
 ## Usage
 

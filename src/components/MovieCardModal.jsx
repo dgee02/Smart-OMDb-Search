@@ -1,3 +1,4 @@
+import { useState } from "react";
 import MovieTrailer from "./MovieTrailer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -25,11 +26,16 @@ export default function MovieCardModal({ movie, details, onClose, isOpen }) {
         return value === "N/A" || value === "" ? `${property} N/A` : value;
     };
 
+    const [isExpanded, setIsExpanded] = useState(false);
+    const toggleAdditionalInfo = () => {
+        setIsExpanded(!isExpanded);
+    };
+
     return (
         <>
             {isOpen && (
                 <div
-                    className="modal fixed z-30 top-0 left-0 right-0 bottom-0 lg:px-52 xl:px-80 bg-gray-700 flex items-center justify-center overflow-y-auto cursor-default"
+                    className="modal fixed z-30 top-0 left-0 right-0 bottom-0 lg:px-52 xl:px-80 bg-black flex items-center justify-center overflow-y-auto cursor-default bg-opacity-85"
                     onClick={toggleModal}
                     style={{ display: "grid", placeItems: "center" }}
                 >
@@ -38,105 +44,145 @@ export default function MovieCardModal({ movie, details, onClose, isOpen }) {
                             <h2 className="font-bold text-4xl">
                                 {checkAvailability(movie.Title, "Title")}
                             </h2>
-                            <p className="uppercase font-medium tracking-widest">
+                            <p className="capitalize font-medium tracking-widest">
                                 {checkAvailability(movie.Type, "Type")} |{" "}
                                 <FontAwesomeIcon icon={faCalendarDay} className="mr-2" />
                                 {checkAvailability(movie.Year, "Year")} |{" "}
                                 <FontAwesomeIcon icon={faShield} className="mr-2" />
-                                {checkAvailability(details.Rated, "Age Rating")}
-                            </p>
-                            <p>
+                                {checkAvailability(details.Rated, "Age Rating")} |{" "}
                                 <FontAwesomeIcon icon={faStopwatch} className="mr-2" />
-                                {checkAvailability(details.Runtime, "Runtime")}
-                            </p>
-                            <p>
+                                {checkAvailability(details.Runtime, "Runtime")} |{" "}
                                 <FontAwesomeIcon icon={faBookmark} className="mr-2" />
-                                {checkAvailability(details.Genre, "Genre(s)")}
+                                {checkAvailability(details.Genre, "Genre")}
                             </p>
                             <br />
                             <MovieTrailer movieTitle={movie.Title} movieYear={movie.Year} />
                             <br />
                             <p>{checkAvailability(details.Plot, "Description")}</p>
                             <br />
-                            <p className="font-bold text-lg text-left py-4">
-                                Additional Information
-                            </p>
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-left">
-                                <div>
+
+                            <div className="pb-4">
+                                {details && details.Ratings && details.Ratings.length > 0 ? (
+                                    details.Ratings.map((rating, index) => (
+                                        <p key={index}>
+                                            <FontAwesomeIcon
+                                                icon={faStarHalfStroke}
+                                                className="mr-2"
+                                                style={{ color: "yellow" }}
+                                            />
+                                            {rating.Source} Ratings:{" "}
+                                            <b>{checkAvailability(rating.Value, "Ratings")}</b>
+                                        </p>
+                                    ))
+                                ) : (
                                     <p>
-                                        <FontAwesomeIcon icon={faPeopleGroup} className="mr-2" />
-                                        Director(s):{" "}
-                                        <b>{checkAvailability(details.Director, "")}</b>
+                                        <FontAwesomeIcon
+                                            icon={faStarHalfStroke}
+                                            className="mr-2"
+                                            style={{ color: "yellow" }}
+                                        />
+                                        Internet Movie Database Ratings: <b>N/A</b>
+                                        <br />
+                                        <FontAwesomeIcon
+                                            icon={faStarHalfStroke}
+                                            className="mr-2"
+                                            style={{ color: "yellow" }}
+                                        />
+                                        Rotten Tomatoes Ratings: <b>N/A</b>
+                                        <br />
+                                        <FontAwesomeIcon
+                                            icon={faStarHalfStroke}
+                                            className="mr-2"
+                                            style={{ color: "yellow" }}
+                                        />
+                                        Metacritic Ratings: <b>N/A</b>
                                     </p>
-                                    <p>
-                                        <FontAwesomeIcon icon={faPeopleGroup} className="mr-2" />
-                                        Writer(s): <b>{checkAvailability(details.Writer, "")}</b>
-                                    </p>
-                                    <p>
-                                        <FontAwesomeIcon icon={faPeopleGroup} className="mr-2" />
-                                        Top Cast: <b>{checkAvailability(details.Actors, "")}</b>
-                                    </p>
-                                </div>
-                                <div>
-                                    {details && details.Ratings && details.Ratings.length > 0 ? (
-                                        details.Ratings.map((rating, index) => (
-                                            <p key={index}>
-                                                <FontAwesomeIcon
-                                                    icon={faStarHalfStroke}
-                                                    className="mr-2"
-                                                />
-                                                {rating.Source} Ratings:{" "}
-                                                <b>{checkAvailability(rating.Value, "Ratings")}</b>
-                                            </p>
-                                        ))
-                                    ) : (
+                                )}
+                            </div>
+
+                            <button
+                                className="w-72 mb-4 font-bold bg-gray-500 rounded-full p-2 hover:bg-gray-400 transition-all duration-200 ease-in-out"
+                                onClick={toggleAdditionalInfo}
+                            >
+                                {isExpanded ? (
+                                    <>Hide Additional Information</>
+                                ) : (
+                                    <>Show Additional Information</>
+                                )}
+                            </button>
+
+                            {isExpanded && (
+                                <div className="grid grid-cols-1 gap-4">
+                                    <div>
                                         <p>
                                             <FontAwesomeIcon
-                                                icon={faStarHalfStroke}
+                                                icon={faPeopleGroup}
                                                 className="mr-2"
+                                                style={{ color: "beige" }}
                                             />
-                                            Internet Movie Database Ratings: <b>N/A</b>
-                                            <br />
-                                            <FontAwesomeIcon
-                                                icon={faStarHalfStroke}
-                                                className="mr-2"
-                                            />
-                                            Rotten Tomatoes Ratings: <b>N/A</b>
-                                            <br />
-                                            <FontAwesomeIcon
-                                                icon={faStarHalfStroke}
-                                                className="mr-2"
-                                            />
-                                            Metacritic Ratings: <b>N/A</b>
+                                            Director(s):{" "}
+                                            <b>{checkAvailability(details.Director, "")}</b>
                                         </p>
-                                    )}
+                                        <p>
+                                            <FontAwesomeIcon
+                                                icon={faPeopleGroup}
+                                                className="mr-2"
+                                                style={{ color: "beige" }}
+                                            />
+                                            Writer(s): <b>{checkAvailability(details.Writer, "")}</b>
+                                        </p>
+                                        <p>
+                                            <FontAwesomeIcon
+                                                icon={faPeopleGroup}
+                                                className="mr-2"
+                                                style={{ color: "beige" }}
+                                            />
+                                            Top Cast: <b>{checkAvailability(details.Actors, "")}</b>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p>
+                                            <FontAwesomeIcon
+                                                icon={faBuilding}
+                                                className="mr-2"
+                                                style={{ color: "orange" }}
+                                            />
+                                            Studio: <b>{checkAvailability(details.Production, "")}</b>
+                                        </p>
+                                        <p>
+                                            <FontAwesomeIcon
+                                                icon={faAward}
+                                                className="mr-2"
+                                                style={{ color: "gold" }}
+                                            />
+                                            Awards: <b>{checkAvailability(details.Awards, "")}</b>
+                                        </p>
+                                        <p>
+                                            <FontAwesomeIcon
+                                                icon={faSackDollar}
+                                                className="mr-2"
+                                                style={{ color: "forestgreen" }}
+                                            />
+                                            Box Office:{" "}
+                                            <b>{checkAvailability(details.BoxOffice, "")}</b>
+                                        </p>
+                                        <p>
+                                            <FontAwesomeIcon
+                                                icon={faLanguage}
+                                                className="mr-2"
+                                                style={{ color: "dodgerblue" }}
+                                            />
+                                            Language(s) Available In:{" "}
+                                            <b>{checkAvailability(details.Language, "")}</b>
+                                        </p>
+                                    </div>
                                 </div>
-                                <div>
-                                    <p>
-                                        <FontAwesomeIcon icon={faBuilding} className="mr-2" />
-                                        Studio: <b>{checkAvailability(details.Production, "")}</b>
-                                    </p>
-                                    <p>
-                                        <FontAwesomeIcon icon={faAward} className="mr-2" />
-                                        Awards: <b>{checkAvailability(details.Awards, "")}</b>
-                                    </p>
-                                    <p>
-                                        <FontAwesomeIcon icon={faSackDollar} className="mr-2" />
-                                        Box Office:{" "}
-                                        <b>{checkAvailability(details.BoxOffice, "")}</b>
-                                    </p>
-                                    <p>
-                                        <FontAwesomeIcon icon={faLanguage} className="mr-2" />
-                                        Language(s) Available In:{" "}
-                                        <b>{checkAvailability(details.Language, "")}</b>
-                                    </p>
-                                </div>
-                            </div>
+                            )}
                             <br />
 
                             <div className="flex justify-center">
                                 <button
-                                    className="w-64 font-bold bg-blue-500 rounded-full p-2 hover:bg-blue-400 transition-all duration-200 ease-in-out"
+                                    className="w-64 font-bold bg-blue-500 rounded-full mt-4 p-2 hover:bg-blue-400 transition-all duration-200 ease-in-out"
                                     onClick={() => searchMovies(searchTerm)}
                                 >
                                     <a

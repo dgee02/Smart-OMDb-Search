@@ -56,7 +56,7 @@ const MovieCard = ({ movie, searchTerm }) => {
 
 	return (
 		<div
-			className="movie w-72 h-auto m-6 relative rounded-3xl overflow-hidden border-0 transition-all duration-400 ease-in-out shadow-lg hover:cursor-pointer"
+			className="movie m-6 relative rounded-3xl overflow-hidden border-0 transition-all duration-400 ease-in-out shadow-lg hover:cursor-pointer"
 			onClick={handleCardClick}
 		>
 			<div className="movie absolute p-4 w-full opacity-0 top-0 transition-all duration-400 ease-in-out"></div>
@@ -75,7 +75,7 @@ const MovieCard = ({ movie, searchTerm }) => {
 					className="font-bold"
 					dangerouslySetInnerHTML={{ __html: highlightedTitle }}
 				></h3>
-				<span className="uppercase text-xs font-medium tracking-widest">
+				<span className="capitalize text-xs font-medium tracking-widest">
 					{movie.Type} |{" "}
 					<FontAwesomeIcon icon={faCalendarDay} className="mr-1" />
 					{movie.Year} | <FontAwesomeIcon icon={faShield} className="mr-1" />
