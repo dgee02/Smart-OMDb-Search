@@ -1,7 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./index.css";
 import MovieCard from "./components/MovieCard";
-import UsageDetails from "./components/UsageDetails";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
 	faSearch,
@@ -25,9 +24,22 @@ const App = () => {
 	const [castFilters, setCastFilters] = useState("");
 	const [aiFilters, setAIFilters] = useState("");
 	const [ErrorMessage, setErrorMessage] = useState("");
-	const [usageMessage, setUsageMessage] = useState("");
 	const [currentPage, setCurrentPage] = useState(1);
 	const [isLoading, setIsLoading] = useState(false);
+	const [titleUpdatedByAI, setTitleUpdatedByAI] = useState(false);
+	const titleInputRef = useRef(null);
+	const aiInputRef = useRef(null);
+
+	useEffect(() => {
+		if (titleUpdatedByAI && titleInputRef.current) {
+			titleInputRef.current.classList.add("highlight");
+			const timeout = setTimeout(() => {
+				titleInputRef.current.classList.remove("highlight");
+				setTitleUpdatedByAI(false);
+			}, 5000);
+			return () => clearTimeout(timeout);
+		}
+	}, [titleUpdatedByAI]);
 
 	const searchMovies = async () => {
 		setIsLoading(true);
@@ -39,14 +51,19 @@ const App = () => {
 					`/.netlify/functions/gemini?prompt=${aiFilters}`
 				);
 				if (!response.ok) {
-					throw new Error("Network response was not ok for Gemini AI");
+					throw new Error("Network response was not ok for AI");
 				}
 				const aiData = await response.json();
 				clearAll();
-				setSearchTerm(aiData.text);
+				if (!aiData.text || aiData.text.length < 3 || aiData.text.includes("NO_VALID_TITLE_FOUND")) {
+					setSearchTerm("");
+				}
+				else {
+					setSearchTerm(aiData.text);
+				}
+				setTitleUpdatedByAI(true);
 			} catch (error) {
-				setErrorMessage("Error reaching Gemini AI. Please try again later.");
-				setUsageMessage("For search tips, click on ");
+				setErrorMessage("Unable to connect to AI. Please try again or search by title instead.");
 			}
 			setIsLoading(false);
 			return;
@@ -79,9 +96,8 @@ const App = () => {
 				if (data.Response === "False") {
 					setMoviesList([]);
 					setErrorMessage(
-						"No results found. Please refine your search criteria."
+						"No results found for your search. Try broader keywords or a different title."
 					);
-					setUsageMessage("For search tips, click on ");
 					break;
 				} else {
 					movies = [...movies, ...data.Search];
@@ -89,8 +105,7 @@ const App = () => {
 				}
 			}
 		} catch (error) {
-			setErrorMessage("Error fetching movie titles. Please try again later.");
-			setUsageMessage("For search tips, click on ");
+			setErrorMessage("Connection issue: Unable to reach movie database. Please check your internet and try again.");
 		}
 
 		// Fetch specific details for all movies
@@ -104,9 +119,8 @@ const App = () => {
 				})
 				.catch((error) => {
 					setErrorMessage(
-						"Error fetching movie details. Please try again later."
+						"Connection issue: Unable to reach movie database. Please check your internet and try again."
 					);
-					setUsageMessage("For search tips, click on ");
 					return null;
 				})
 		);
@@ -150,9 +164,8 @@ const App = () => {
 		});
 
 		setMoviesList(movies);
-		if (movies.length === 0 && (ErrorMessage != "Error fetching movie details. Please try again later." || ErrorMessage != "Error fetching movie titles. Please try again later.")) {
+		if (movies.length === 0 && (ErrorMessage != "Connection issue: Unable to reach movie database. Please check your internet and try again." || ErrorMessage != "Error fetching movie titles. Please try again later.")) {
 			setErrorMessage("No results found. Please refine your search criteria.");
-			setUsageMessage("For search tips, click on ");
 		}
 		setIsLoading(false);
 	};
@@ -171,211 +184,260 @@ const App = () => {
 		setCastFilters("");
 		setAIFilters("");
 		setErrorMessage("");
-		setUsageMessage("");
 	};
 
 	return (
-		<div className="p-16 flex justify-center align-middle flex-col overflow-x-hidden text-center">
-			<h1 className="font-bold text-5xl"><FontAwesomeIcon icon={faBrain} className="mx-2" /> <FontAwesomeIcon icon={faPhotoFilm} className="mx-2" /> <FontAwesomeIcon icon={faSearch} className="mx-2" /></h1>
-			<div className="flex justify-center">
-				<input
-					className="w-3/4 my-10 p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-					placeholder="Title*"
-					type="text"
-					value={searchTerm}
-					onChange={(userInput) => {
-						setSearchTerm(userInput.target.value);
-					}}
-					onKeyDown={(event) => {
-						if (event.key === "Enter") {
-							if (searchTerm.length > 2 && aiFilters.length == 0) {
-								searchMovies(searchTerm);
-							} else if (searchTerm.length == 0 && aiFilters.length > 0) {
-								searchMovies(searchTerm);
-							} else if (searchTerm.length > 0 && aiFilters.length > 0) {
-								setErrorMessage(
-									"Clear either the Title* field or the AI description field."
-								);
-								setUsageMessage("For search tips, click on ");
-							} else {
-								setErrorMessage(
-									"Enter at least 3 characters in the Title* field or use the AI description field."
-								);
-								setUsageMessage("For search tips, click on ");
+		<div className="py-10 px-4 md:px-10 lg:px-20 xl:px-40 flex justify-center align-middle flex-col overflow-x-hidden text-center">
+			<h1 className="font-bold text-5xl pb-10">OMDb Search</h1>
+			<div className="flex justify-center flex-col items-center">
+				<label htmlFor="search-title" className="text-left w-full mb-1 ml-2">Title <span className="text-red-500">*</span></label>
+				<div className="relative w-full mb-8">
+					<input
+						id="search-title"
+						ref={titleInputRef}
+						className="w-full p-3.5 pl-4 pr-24 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+						placeholder="Avengers: Endgame"
+						type="text"
+						value={searchTerm}
+						onChange={(userInput) => {
+							setSearchTerm(userInput.target.value);
+						}}
+						onKeyDown={(event) => {
+							if (event.key === "Enter") {
+								if (searchTerm.length > 2 && aiFilters.length == 0) {
+									searchMovies(searchTerm);
+								} else if (searchTerm.length == 0 && aiFilters.length > 0) {
+									searchMovies(searchTerm);
+								} else if (searchTerm.length > 0 && aiFilters.length > 0) {
+									setErrorMessage(
+										"Please use only one search method: either enter a Title OR use AI description, not both."
+									);
+								} else {
+									setErrorMessage(
+										"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+									);
+								}
 							}
-						}
-					}}
-				/>
+						}}
+					/>
+					<div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
+						<button
+							aria-label="Search"
+							className="h-10 w-10 flex items-center justify-center bg-blue-500 rounded-full hover:bg-blue-400 transition-all duration-200 ease-in-out mr-2"
+							onClick={() => {
+								if (
+									(searchTerm.length > 2 && aiFilters.length == 0) ||
+									(searchTerm.length == 0 && aiFilters.length > 0)
+								) {
+									searchMovies();
+								} else if (searchTerm.length > 0 && aiFilters.length > 0) {
+									setErrorMessage(
+										"Please use only one search method: either enter a Title OR use AI description, not both."
+									);
+								} else {
+									setErrorMessage(
+										"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+									);
+								}
+							}}
+						>
+							<FontAwesomeIcon icon={faSearch} />
+						</button>
+						<button
+							aria-label="Clear search"
+							className="h-10 w-10 flex items-center justify-center bg-red-700 rounded-full hover:bg-red-500 transition-all duration-200 ease-in-out"
+							onClick={clearAll}
+						>
+							<FontAwesomeIcon icon={faTrash} />
+						</button>
+					</div>
+				</div>
 			</div>
 			<div className="flex justify-center">
 				<button
-					className="w-36 mb-8 font-bold bg-gray-500 rounded-full p-2 hover:bg-gray-400 transition-all duration-200 ease-in-out"
+					className="w-36 mb-4 font-bold bg-gray-500 rounded-full p-2 hover:bg-gray-400 transition-all duration-200 ease-in-out"
 					onClick={() => setShowFilters(!showFilters)}
 				>
-					{showFilters ? "Hide Filters" : "Show Filters"}
+					{showFilters ? "Hide Tools" : "Show Tools"}
 				</button>
 			</div>
 			{showFilters && (
-				<div>
-					<div className="grid grid-cols-1 px-7 md:px-20 lg:px-28 xl:px-40 2xl:px-72 justify-items-center">
-						<input
-							className="w-4/5 mb-5 flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-							placeholder="Any description... (AI will update Title*)"
-							value={aiFilters}
-							onChange={(e) => setAIFilters(e.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter") {
-									if (searchTerm.length == 0 && aiFilters.length > 0) {
-										searchMovies();
-									} else if (searchTerm.length > 2 && aiFilters.length == 0) {
-										searchMovies();
-									} else if (searchTerm.length > 0 && aiFilters.length > 0) {
-										setErrorMessage(
-											"Clear the Title* field to use the AI description field."
-										);
-										setUsageMessage("For search tips, click on ");
-									} else {
-										setErrorMessage(
-											"Enter any description for the AI to process."
-										);
-										setUsageMessage("For search tips, click on ");
-									}
-								}
-							}}
-						/>
+				<div className="bg-gray-500 rounded-3xl p-2 mb-4">
+					<div className="grid grid-cols-1 justify-items-center">
+						<p className="text-lg font-bold">Use AI</p>
+						<div className="w-full">
+							<label htmlFor="ai-description" className="block text-left mb-1 ml-2">Description</label>
+							<div className="relative w-full">
+								<input
+									id="ai-description"
+									ref={aiInputRef}
+									className="w-full mb-4 flex items-center justify-center p-3.5 pl-4 pr-12 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+									placeholder="Superhero team tries to undo a catastrophic event"
+									value={aiFilters}
+									onChange={(e) => setAIFilters(e.target.value)}
+									onKeyDown={(event) => {
+										if (event.key === "Enter") {
+											if (searchTerm.length == 0 && aiFilters.length > 0) {
+												searchMovies();
+											} else if (searchTerm.length > 2 && aiFilters.length == 0) {
+												searchMovies();
+											} else if (searchTerm.length > 0 && aiFilters.length > 0) {
+												setErrorMessage(
+													"Please use only one search method: either enter a Title OR use AI description, not both."
+												);
+											} else {
+												setErrorMessage(
+													"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+												);
+											}
+										}
+									}}
+								/>
+								<div className="absolute right-2 top-1/2 -translate-y-1/2 flex">
+									<button
+										aria-label="Use AI to find title"
+										className="h-10 w-10 flex items-center justify-center bg-purple-600 rounded-full hover:bg-purple-500 transition-all duration-200 ease-in-out"
+										onClick={() => {
+											if (searchTerm.length == 0 && aiFilters.length > 0) {
+												searchMovies();
+											} else if (searchTerm.length > 0 && aiFilters.length > 0) {
+												setErrorMessage(
+													"Please use only one search method: either enter a Title OR use AI description, not both."
+												);
+											} else {
+												setErrorMessage(
+													"Please enter a description for the AI to process."
+												);
+											}
+										}}
+									>
+										<FontAwesomeIcon icon={faBrain} />
+									</button>
+								</div>
+							</div>
+						</div>
+						<p className="text-xs text-gray-300 mb-3">AI may not respond to unrelated or inappropriate prompts</p>
 					</div>
-					<p className="text-lg font-medium pb-5">OR</p>
-					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 pb-6 px-7 md:px-20 lg:px-28 xl:px-40 2xl:px-72 justify-items-center">
-						<input
-							className="w-3/4 mb-7 flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-							placeholder="Genre(s)"
-							value={genreFilters}
-							onChange={(e) => setGenreFilters(e.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter") {
-									if (searchTerm.length > 2) {
-										searchMovies(searchTerm);
-									} else {
-										setErrorMessage(
-											"Enter at least 3 characters in the Title* field or use the AI description field."
-										);
-										setUsageMessage("For search tips, click on ");
-									}
-								}
-							}}
-						/>
-						<input
-							className="w-3/4 mb-7 flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-							placeholder="Year(s)"
-							value={yearFilters}
-							onChange={(e) => setYearFilters(e.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter") {
-									if (searchTerm.length > 2) {
-										searchMovies(searchTerm);
-									} else {
-										setErrorMessage(
-											"Enter at least 3 characters in the Title* field or use the AI description field."
-										);
-										setUsageMessage("For search tips, click on ");
-									}
-								}
-							}}
-						/>
-						<input
-							className="w-3/4 mb-7 flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-							placeholder="Type(s)"
-							value={typeFilters}
-							onChange={(e) => setTypeFilters(e.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter") {
-									if (searchTerm.length > 2) {
-										searchMovies(searchTerm);
-									} else {
-										setErrorMessage(
-											"Enter at least 3 characters in the Title* field or use the AI description field."
-										);
-										setUsageMessage("For search tips, click on ");
-									}
-								}
-							}}
-						/>
-						<input
-							className="w-3/4 mb-7 flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-							placeholder="Director(s)"
-							value={directorFilters}
-							onChange={(e) => setDirectorFilters(e.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter") {
-									if (searchTerm.length > 2) {
-										searchMovies(searchTerm);
-									} else {
-										setErrorMessage(
-											"Enter at least 3 characters in the Title* field or use the AI description field."
-										);
-										setUsageMessage("For search tips, click on ");
-									}
-								}
-							}}
-						/>
-						<input
-							className="w-3/4 mb-7 flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
-							placeholder="Cast member(s)"
-							value={castFilters}
-							onChange={(e) => setCastFilters(e.target.value)}
-							onKeyDown={(event) => {
-								if (event.key === "Enter") {
-									if (searchTerm.length > 2) {
-										searchMovies(searchTerm);
-									} else {
-										setErrorMessage(
-											"Enter at least 3 characters in the Title* field or use the AI description field."
-										);
-										setUsageMessage("For search tips, click on ");
-									}
-								}
-							}}
-						/>
+					<div className="flex items-center justify-center w-full mb-5">
+						<div className="flex-grow h-px bg-gray-400 mx-4 max-w-[50%]"></div>
+						<p className="text-lg font-bold px-4">OR</p>
+						<div className="flex-grow h-px bg-gray-400 mx-4 max-w-[50%]"></div>
 					</div>
+					<p className="text-lg font-bold">Use Filters</p>
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-4 justify-items-center">
+						<div className="w-full">
+							<label htmlFor="genre-filter" className="block text-left mb-1 ml-2">Genre(s)</label>
+							<input
+								id="genre-filter"
+								className="w-full flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+								placeholder="Action,Adventure,Sci-Fi"
+								value={genreFilters}
+								onChange={(e) => setGenreFilters(e.target.value)}
+								onKeyDown={(event) => {
+									if (event.key === "Enter") {
+										if (searchTerm.length > 2) {
+											searchMovies(searchTerm);
+										} else {
+											setErrorMessage(
+												"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+											);
+										}
+									}
+								}}
+							/>
+						</div>
+						<div className="w-full">
+							<label htmlFor="year-filter" className="block text-left mb-1 ml-2">Year(s)</label>
+							<input
+								id="year-filter"
+								className="w-full flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+								placeholder="2019"
+								value={yearFilters}
+								onChange={(e) => setYearFilters(e.target.value)}
+								onKeyDown={(event) => {
+									if (event.key === "Enter") {
+										if (searchTerm.length > 2) {
+											searchMovies(searchTerm);
+										} else {
+											setErrorMessage(
+												"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+											);
+										}
+									}
+								}}
+							/>
+						</div>
+						<div className="w-full">
+							<label htmlFor="type-filter" className="block text-left mb-1 ml-2">Type(s)</label>
+							<input
+								id="type-filter"
+								className="w-full flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+								placeholder="Movie"
+								value={typeFilters}
+								onChange={(e) => setTypeFilters(e.target.value)}
+								onKeyDown={(event) => {
+									if (event.key === "Enter") {
+										if (searchTerm.length > 2) {
+											searchMovies(searchTerm);
+										} else {
+											setErrorMessage(
+												"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+											);
+										}
+									}
+								}}
+							/>
+						</div>
+						<div className="w-full">
+							<label htmlFor="director-filter" className="block text-left mb-1 ml-2">Director(s)</label>
+							<input
+								id="director-filter"
+								className="w-full flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+								placeholder="Russo"
+								value={directorFilters}
+								onChange={(e) => setDirectorFilters(e.target.value)}
+								onKeyDown={(event) => {
+									if (event.key === "Enter") {
+										if (searchTerm.length > 2) {
+											searchMovies(searchTerm);
+										} else {
+											setErrorMessage(
+												"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+											);
+										}
+									}
+								}}
+							/>
+						</div>
+						<div className="w-full">
+							<label htmlFor="cast-filter" className="block text-left mb-1 ml-2">Cast member(s)</label>
+							<input
+								id="cast-filter"
+								className="w-full flex items-center justify-center p-3.5 rounded-full shadow-lg border-none text-lg font-medium outline-none bg-gray-700 focus:bg-gray-600 transition-all duration-200 ease-in-out"
+								placeholder="Robert Downey Jr.,Chris Evans"
+								value={castFilters}
+								onChange={(e) => setCastFilters(e.target.value)}
+								onKeyDown={(event) => {
+									if (event.key === "Enter") {
+										if (searchTerm.length > 2) {
+											searchMovies(searchTerm);
+										} else {
+											setErrorMessage(
+												"Please enter at least 3 characters in the Title field or describe a movie for AI search in the Tools section."
+											);
+										}
+									}
+								}}
+							/>
+						</div>
+					</div>
+					<p className="text-xs text-gray-300 mb-2">Tip: For multiple values in any filter, use commas without spaces (example: Action,Comedy)</p>
 				</div>
 			)}
-			<div className="flex justify-center">
-				<button
-					className="mx-2 w-36 font-bold bg-blue-500 rounded-full p-2 hover:bg-blue-400 transition-all duration-200 ease-in-out"
-					onClick={() => {
-						if (
-							(searchTerm.length > 2 && aiFilters.length == 0) ||
-							(searchTerm.length == 0 && aiFilters.length > 0)
-						) {
-							searchMovies(searchTerm);
-						} else if (searchTerm.length > 0 && aiFilters.length > 0) {
-							setErrorMessage(
-								"Clear either the Title* field or the AI description field."
-							);
-							setUsageMessage("For search tips, click on ");
-						} else {
-							setErrorMessage(
-								"Enter at least 3 characters in the Title* field or use the AI description field."
-							);
-							setUsageMessage("For search tips, click on ");
-						}
-					}}
-				>
-					Search
-					<FontAwesomeIcon icon={faSearch} className="ml-2" />
-				</button>
-				<button
-					className="mx-2 w-36 font-bold bg-red-700 rounded-full p-2 hover:bg-red-500 transition-all duration-200 ease-in-out mr-4"
-					onClick={clearAll}
-				>
-					Reset Search
-					<FontAwesomeIcon icon={faTrash} className="ml-2" />
-				</button>
-			</div>
-			<div className="w-full mt-12 flex justify-center align-middle flex-wrap">
+			<div className="w-full flex justify-center align-middle flex-wrap">
 				{isLoading ? (
-					<p>
-						Loading{" "}
+					<p className="mt-4">
+						Loading Results{" "}
 						<FontAwesomeIcon icon={faSpinner} className="loading-icon ml-1" />
 					</p>
 				) : moviesList.length > 0 ? (
@@ -391,21 +453,18 @@ const App = () => {
 				) : (
 					ErrorMessage && (
 						<div>
-							<p>
-								<FontAwesomeIcon icon={faCircleExclamation} className="mr-2" style={{ color: "red" }}/>
+							<p className="mt-4">
+								<FontAwesomeIcon
+									icon={faCircleExclamation}
+									className="mr-2"
+									style={{ color: "red" }}
+								/>
 								{ErrorMessage}
-							</p>
-							<p>
-								{usageMessage}
-								<FontAwesomeIcon icon={faInfo} className="ml-1" /> .
 							</p>
 						</div>
 					)
 				)}
 			</div>
-			<UsageDetails
-				style={{ position: "absolute", right: "5vw", top: "4em", zIndex: 10 }}
-			/>
 		</div>
 	);
 };

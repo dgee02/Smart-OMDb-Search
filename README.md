@@ -12,13 +12,9 @@ A smart search engine for obtaining information from the OMDb API. Users can exp
 
 - Advanced Filters: Refine searches by genre, year, type, director, and cast with support for multiple values.
 
-- Modals: Click on a search result for additional information without leaving the current page.
-
-- YouTube Integration: View relevant trailers for each search result.
+- Modals with YouTube Integration: Click on a search result for additional information and relevant trailers without leaving the current page.
 
 - Search Term Highlighting: Highlight matching parts of titles in search results for quick identification of relevant content.
-
-- Usage Guidelines: Instructions and examples are provided to enhance understanding of search features.
 
 - Additional Quality of Life Features: Easily reset search criteria with a single click, hassle-free searching with case-insensitive input recognition, helpful error messages, and more.
 
@@ -32,11 +28,9 @@ A smart search engine for obtaining information from the OMDb API. Users can exp
     - Google Gemini will try to find the title based on any description provided and its result will automatically update the main search bar. No other fields (including the main search bar) need to be initially filled if using this option. Keep in mind that inappropriate descriptions may not be processed. **Google may use your prompts to improve their products**.
     - Use any number of the additional filters at a time. Keep in mind when inputting more than 1 value into a filter, each value must be separated with a single comma and no spaces in between (e.g., value1,value2,value3). 
 
-4. Click the search button or press Enter on your keyboard to view search results. (If using the AI option, the search button must be clicked twice: 1st search will update main search bar, 2nd search will provide results.)
+4. Click the search button or press Enter on your keyboard to view search results. (If using the AI option: 1st search will update main search bar, 2nd search will provide results.)
 
 5. Click on any result to explore additional information about it including runtime, trailer, plot summary, ratings, and more.
-
-Note: Click on the information button in the top right corner for further search tips should you have any trouble using the application.
 
 ## Technologies Used
 

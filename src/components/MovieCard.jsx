@@ -56,7 +56,7 @@ const MovieCard = ({ movie, searchTerm }) => {
 
 	return (
 		<div
-			className="movie m-6 relative rounded-3xl overflow-hidden border-0 transition-all duration-400 ease-in-out shadow-lg hover:cursor-pointer"
+			className="movie m-4 relative rounded-3xl overflow-hidden border-0 transition-all duration-400 ease-in-out shadow-lg hover:cursor-pointer"
 			onClick={handleCardClick}
 		>
 			<div className="movie absolute p-4 w-full opacity-0 top-0 transition-all duration-400 ease-in-out"></div>

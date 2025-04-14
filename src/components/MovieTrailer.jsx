@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleExclamation } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCircleExclamation,
+  faSpinner,
+} from "@fortawesome/free-solid-svg-icons";
 
 const MovieTrailer = ({ movieTitle, movieYear }) => {
   const [trailerVideoId, setTrailerVideoId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Reset states when movie changes
+    setIsLoading(true);
+    setTrailerVideoId(null);
+
     // Fetch movie trailer
     const fetchTrailer = async () => {
       try {
@@ -18,8 +26,10 @@ const MovieTrailer = ({ movieTitle, movieYear }) => {
           const videoId = response.data.items[0].id.videoId;
           setTrailerVideoId(videoId);
         }
+        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching movie trailer: ", error);
+        setIsLoading(false);
       }
     };
 
@@ -34,7 +44,16 @@ const MovieTrailer = ({ movieTitle, movieYear }) => {
 
   return (
     <div className="flex justify-center">
-      {trailerVideoId ? (
+      {isLoading ? (
+        <p className="text-center">
+          Loading YouTube Player{" "}
+          <FontAwesomeIcon
+            icon={faSpinner}
+            className="mr-2 loading-icon"
+            spin
+          />{" "}
+        </p>
+      ) : trailerVideoId ? (
         <iframe
           className="md:w-96 md:h-52"
           src={`https://www.youtube.com/embed/${trailerVideoId}`}
@@ -44,7 +63,11 @@ const MovieTrailer = ({ movieTitle, movieYear }) => {
         ></iframe>
       ) : (
         <p className="text-center">
-          <FontAwesomeIcon icon={faCircleExclamation} className="mr-2" style={{ color: "red" }}/>{" "}
+          <FontAwesomeIcon
+            icon={faCircleExclamation}
+            className="mr-2"
+            style={{ color: "red" }}
+          />{" "}
           YouTube Player N/A
         </p>
       )}

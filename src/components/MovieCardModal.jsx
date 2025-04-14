@@ -35,7 +35,7 @@ export default function MovieCardModal({ movie, details, onClose, isOpen }) {
         <>
             {isOpen && (
                 <div
-                    className="modal fixed z-30 top-0 left-0 right-0 bottom-0 lg:px-52 xl:px-80 bg-black flex items-center justify-center overflow-y-auto cursor-default bg-opacity-85"
+                    className="modal fixed z-30 top-0 left-0 right-0 bottom-0 lg:px-52 xl:px-80 bg-black backdrop-blur-sm bg-opacity-75 flex items-center justify-center overflow-y-auto cursor-default"
                     onClick={toggleModal}
                     style={{ display: "grid", placeItems: "center" }}
                 >
